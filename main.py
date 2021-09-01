@@ -1,17 +1,16 @@
 import cv2
 import numpy as np
 
-photo = cv2.imread("images/2020-01-05_213603.jpg")
-img = np.zeros(photo.shape[:2], dtype='uint8')
 
-circle = cv2.circle(img.copy(), (250, 200), 200, 255, -1)
-square = cv2.rectangle(img.copy(), (25, 25), (250, 350), 255, -1)
+img = cv2.imread('images/faces_foto.jpg')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-# Побитовые операции и маски
-img = cv2.bitwise_and(photo, photo, mask=circle)
-# img = cv2.bitwise_or(circle, square)
-# img = cv2.bitwise_xor(circle, square)
-# img = cv2.bitwise_not(circle)
+focus = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
+results = focus.detectMultiScale(gray, scaleFactor=2, minNeighbors=3)
+
+for (x,y,w,h) in results:
+    cv2.rectangle(img,(x,y,),(x+w,y+h),(0,0,255),thickness=3)
 
 cv2.imshow("Result", img)
 cv2.waitKey(0)
