@@ -27,8 +27,24 @@ for c in cont:
 print(pos)
 
 mask = np.zeros(gray.shape, np.uint8)
-new_img = cv2.drawContours(mask,[pos], 0,255,-1)
+new_img = cv2.drawContours(mask, [pos], 0, 255, -1)
 bitwise_img = cv2.bitwise_and(img, img, mask=mask)
 
-pl.imshow(cv2.cvtColor(bitwise_img, cv2.COLOR_BGR2RGB))
+(x, y) = np.where(mask == 255)
+(x1, y1) = (np.min(x), np.min(y))
+(x2, y2) = (np.max(x), np.max(y))
+crop = gray[x1:x2, y1:y2]
+
+# чтение номера
+text = ocr.Reader(['en'])
+text = text.readtext(crop)
+print(text)
+print((x1, x2))
+print((y1, y2))
+
+res = text[0][-2]
+final_image = cv2.putText(img, res, (x1-200, y2 + 60), cv2.FONT_HERSHEY_PLAIN, 5, (0, 0, 255), 3)
+final_image = cv2.rectangle(img, (x1, x2), (y1, y2), (0, 255, 0), 2)
+
+pl.imshow(cv2.cvtColor(final_image, cv2.COLOR_BGR2RGB))
 pl.show()
