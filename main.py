@@ -1,20 +1,34 @@
 import cv2
 import numpy as np
+import imutils as imu
+import easyocr as ocr
+from matplotlib import pyplot as pl
 
+img = cv2.imread('images/777.jpg')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-img = cv2.imread('images/2020-01-05_213603.jpg')
-new_img = np.zeros(img.shape, dtype='uint8')
+img_filter = cv2.bilateralFilter(gray, 11, 15, 15)
+edges = cv2.Canny(img_filter, 30, 200)
 
-img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-img = cv2.GaussianBlur(img, (5,5), 0)
+# контуры
+cont = cv2.findContours(edges.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+cont = imu.grab_contours(cont)
+cont = sorted(cont, key=cv2.contourArea, reverse=True)[:8]
 
-img = cv2.Canny(img, 100, 140)
+# квадраты?
+pos = None
+for c in cont:
+    approx = cv2.approxPolyDP(c, 10, True)
+    if len(approx) == 4:
+        pos = approx
+        break
 
-# получаем контуры изображения
-con, hir = cv2.findContours(img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+# координаты предполагаемого знака
+print(pos)
 
-# выводим полученные контуры
-cv2.drawContours(new_img, con, -1, (230,111,148),1)
+mask = np.zeros(gray.shape, np.uint8)
+new_img = cv2.drawContours(mask,[pos], 0,255,-1)
+bitwise_img = cv2.bitwise_and(img, img, mask=mask)
 
-cv2.imshow("Result", new_img)
-cv2.waitKey(0)
+pl.imshow(cv2.cvtColor(bitwise_img, cv2.COLOR_BGR2RGB))
+pl.show()
