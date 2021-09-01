@@ -1,20 +1,16 @@
 import cv2
 import numpy as np
 
+img = np.zeros((300, 300), dtype='uint8')
 
-img = cv2.imread('images/2020-01-05_213603.jpg')
-new_img = np.zeros(img.shape, dtype='uint8')
+circle = cv2.circle(img.copy(), (0, 0), 80, 255, -1)
+square = cv2.rectangle(img.copy(), (25, 25), (250, 350), 255, -1)
 
-img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-img = cv2.GaussianBlur(img, (5,5), 0)
+# Побитовые операции и маски
+img = cv2.bitwise_and(circle,square)
+img = cv2.bitwise_or(circle,square)
+img = cv2.bitwise_xor(circle,square)
+img = cv2.bitwise_not(circle)
 
-img = cv2.Canny(img, 100, 140)
-
-# получаем контуры изображения
-con, hir = cv2.findContours(img, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-
-# выводим полученные контуры
-cv2.drawContours(new_img, con, -1, (230,111,148),1)
-
-cv2.imshow("Result", new_img)
+cv2.imshow("Result", img)
 cv2.waitKey(0)
